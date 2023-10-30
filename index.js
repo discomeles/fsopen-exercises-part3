@@ -28,14 +28,28 @@ app.get('/', (req, res) => {
   res.send('<h1>Hello World!</h1>')
 })
 
-app.get('/api/persons', (req, res) => {
-  res.json(persons)
-})
-
 app.get('/info', (req, res) => {
   // päiväys
   timestamp = new Date()
   res.send(`Phonebook has info for ${persons.length} people <br/> ${timestamp}`)
+})
+
+app.get('/api/persons', (req, res) => {
+  res.json(persons)
+})
+
+app.get('/api/persons/:id', (req,res) => {
+  const id = Number(req.params.id)
+  const person = persons.find(person => person.id === id)
+  
+  // jos yhteystieto löytyy, se lähetetään
+  if (person) {
+    res.json(person)
+  // jos ei, vastataan status 404 ilman dataa
+  } else {
+    res.status(404).end()
+  }
+  
 })
 
 const PORT = 3001
