@@ -63,6 +63,25 @@ app.delete('/api/persons/:id', (req,res) => {
 
 app.post('/api/persons', (req,res) => {
   const person = req.body
+
+  if (!person.name) {
+    return res.status(400).json({
+      error: 'name missing'
+    })
+  }
+
+  if (!person.number) {
+    return res.status(400).json({
+      error: 'number missing'
+    })
+  }
+
+  if (persons.findIndex((element) => element.name === person.name) != -1) {
+    return res.status(400).json({
+      error: 'name is already in the phonebook'
+    })
+  }
+
   const newID = Math.floor(Math.random() * 100000)
   person.id = newID
   persons = persons.concat(person)
