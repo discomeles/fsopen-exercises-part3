@@ -36,7 +36,9 @@ app.get('/', (req, res) => {
 
 app.get('/info', (req, res) => {
   timestamp = new Date()
-  res.send(`Phonebook has info for ${persons.length} people <br/> ${timestamp}`)
+  Person.find({}).then(persons => {
+    res.send(`Phonebook has info for ${persons.length} people <br/> ${timestamp}`)
+  })
 })
 
 // --- Kaikkien yhteystietojen hakeminen ---
@@ -108,7 +110,7 @@ app.put('/api/persons/:id', (req,res,next) => {
     name: body.name,
     number: body.number
   }
-  
+
   Person.findByIdAndUpdate(req.params.id, person, {new:true})
     .then(updatedPerson => {
       res.json(updatedPerson)
