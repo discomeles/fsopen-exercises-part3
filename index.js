@@ -4,38 +4,29 @@ const morgan = require('morgan')
 const cors = require('cors')
 const Person = require('./models/person')
 
+// --- Virheenkäsittelijä ---
+const errorHandler = (error, req, res, next) => {
+  console.error(err.message)
+
+  if (error.name === 'CastError') {
+    return res.status(400).send({ error: 'malformatted id' })
+  }
+
+  next(error)
+}
+
+const unknownEndpoint = (req, res) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
 app.use(cors())
 app.use(express.json())
 app.use(express.static('dist'))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
-// lisätään morganin logattavaksi
 morgan.token('body', (req) => {
   return JSON.stringify(req.body, ["name","number"])
   })
-
-// let persons = [
-//   {
-//     "id": 1,    
-//     "name": "Arto Hellas",
-//     "number": "040-123456",
-//   },
-//   {
-//     "id": 2,
-//     "name": "Ada Lovelace",
-//     "number": "39-44-5323523",
-//   },
-//   {
-//     "id": 3,
-//     "name": "Dan Abramov",
-//     "number": "12-43-234345",
-//   },
-//   {
-//     "id": 4,
-//     "name": "Mary Poppendieck",
-//     "number": "39-23-6423122",
-//   }
-// ]
 
 let persons = []
 
@@ -44,7 +35,6 @@ app.get('/', (req, res) => {
 })
 
 app.get('/info', (req, res) => {
-  // päiväys
   timestamp = new Date()
   res.send(`Phonebook has info for ${persons.length} people <br/> ${timestamp}`)
 })
@@ -57,26 +47,25 @@ app.get('/api/persons', (req, res) => {
 })
 
 // --- Tietyn yhteystiedon hakeminen ---
-app.get('/api/persons/:id', (req,res) => {
-  const id = Number(req.params.id)
-  const person = persons.find(person => person.id === id)
-  
-  // jos yhteystieto löytyy, se lähetetään
-  if (person) {
-    res.json(person)
-  // jos ei, vastataan status 404 ilman dataa
-  } else {
-    res.status(404).end()
-  }
-  
+app.get('/api/persons/:id', (req,res,next) => {
+  Person.findById(req.params.id)
+    .then(person => {
+      if (person) {
+        res.json(person)
+      } else {
+        res.status(404).end()
+      }
+    })
+    .catch(error => next(error)) 
 })
 
 // --- Yhteystiedon poistaminen ---
-app.delete('/api/persons/:id', (req,res) => {
-  const id = Number(req.params.id)
-  console.log(id)
-  persons = persons.filter(person => person.id === id)
-  res.status(204).end()
+app.delete('/api/persons/:id', (req,res,next) => {
+  Person.findByIdAndDelete(req.params.id)
+    .then ( result => {
+      res.status(204).end()
+    })
+    .catch(error => next(error))
 })
 
 // --- Yhteystiedon lisääminen ---
@@ -105,11 +94,6 @@ app.post('/api/persons', (req,res) => {
     name: body.name,
     number: body.number
   })
-
-  // const newID = Math.floor(Math.random() * 100000)
-  // person.id = newID
-  // persons = persons.concat(person)
-  // res.json(person)
   person.save().then(savedPerson => {
     res.json(savedPerson)
   })
