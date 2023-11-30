@@ -27,8 +27,8 @@ app.use(express.static('dist'))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
 morgan.token('body', (req) => {
-  return JSON.stringify(req.body, ["name","number"])
-  })
+  return JSON.stringify(req.body, ['name','number'])
+})
 
 let persons = []
 
@@ -37,7 +37,7 @@ app.get('/', (req, res) => {
 })
 
 app.get('/info', (req, res) => {
-  timestamp = new Date()
+  const timestamp = new Date()
   Person.find({}).then(persons => {
     res.send(`Phonebook has info for ${persons.length} people <br/> ${timestamp}`)
   })
@@ -47,7 +47,7 @@ app.get('/info', (req, res) => {
 app.get('/api/persons', (req, res) => {
   Person.find({}).then(persons => {
     res.json(persons)
-  })  
+  })
 })
 
 // --- Tietyn yhteystiedon hakeminen ---
@@ -60,7 +60,7 @@ app.get('/api/persons/:id', (req,res,next) => {
         res.status(404).end()
       }
     })
-    .catch(error => next(error)) 
+    .catch(error => next(error))
 })
 
 // --- Yhteystiedon poistaminen ---
@@ -88,7 +88,7 @@ app.post('/api/persons', (req,res,next) => {
     })
   }
 
-  if (persons.findIndex((element) => element.name === body.name) != -1) {
+  if (persons.findIndex((element) => element.name === body.name) !== -1) {
     return res.status(400).json({
       error: 'name is already in the phonebook'
     })
@@ -113,7 +113,7 @@ app.put('/api/persons/:id', (req,res,next) => {
     number: body.number
   }
 
-  Person.findByIdAndUpdate(req.params.id, person, {new:true})
+  Person.findByIdAndUpdate(req.params.id, person, { new:true })
     .then(updatedPerson => {
       res.json(updatedPerson)
     })

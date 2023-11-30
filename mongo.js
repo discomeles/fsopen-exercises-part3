@@ -1,9 +1,8 @@
 const mongoose = require('mongoose')
 
 // haetaan url ja käyttäjä ympäristömuuttujista
-const mongo_url = process.env.MONGODB_URL;
-const mongo_user = process.env.MONGODB_USER;
-const persons = []
+const mongo_url = process.env.MONGODB_URL
+const mongo_user = process.env.MONGODB_USER
 
 // määritellään yhteystieto-olion skeema
 const personSchema = new mongoose.Schema({
@@ -11,7 +10,7 @@ const personSchema = new mongoose.Schema({
   number:String
 },
 // pakotetaan kokoelman nimi
-{collection: 'persons'})
+{ collection: 'persons' })
 
 const Person = mongoose.model('Person', personSchema)
 
@@ -37,13 +36,13 @@ mongoose.connect(url)
 // haetaan tiedot
 if (process.argv.length===3) {
   Person.find({}).then(data => {
-    console.log("phonebook:")
+    console.log('phonebook:')
     data.forEach(person => {
-      console.log(person.name +" "+ person.number)
+      console.log(person.name +' '+ person.number)
     })
     mongoose.connection.close()
   })
-  
+
 
 // jos annetaan muut parametrit
 } else if (process.argv.length===5) {
