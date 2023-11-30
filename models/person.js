@@ -25,7 +25,16 @@ const personSchema = new mongoose.Schema({
       minlength: 3,
       required: true
     },
-    number:String
+    number: {
+      type: String,
+      minlength: 8,
+      validate: {
+        validator: function(v) {
+          return /^(\d{2,3})-(\d{6,8})$/.test(v)
+        },
+        message: "Wrong number format. Please format number as 09-1234567 or 040-12345678"
+      }
+    },
 },
 // pakotetaan kokoelman nimi
 {collection: 'persons'})
